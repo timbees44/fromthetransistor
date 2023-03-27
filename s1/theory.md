@@ -11,4 +11,7 @@ As FPGAs are integrated ciruits which are largely built up of transistors and ot
 # ICs are collections of transistors in a nice reliable package
 This point is mostly explained above. Simply; FPGAs can be built up of transistors, FPGAs are a type of IC therefore ICs are collections of tansistors in a nice reliable package. There are other electrical components such as diodes that can be present on ICs. A lot of these components share the same semi-conductor properties but with slight differences to serve different purposes. 
 
+# LUTs and Stuff
+LUTs are look-up tables. They work much like dictionaries in code where there is a key (k) that references a value (v). They differ from hash tables where the value (v) is stored in slot h(k) where h is the has functioned used. This means that that v is directly addressable/reachable by calling k.
 
+In the context of FPGAs and transistors lookup tables are use to provide programmable hardware functionality. LUTs can be used to implement a logic device.
