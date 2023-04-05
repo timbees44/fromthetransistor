@@ -1,27 +1,14 @@
-module led_blink (clk, LED);
+module led_blink (); // setting module for block of functionality -> format= module <name> ([port_list]);
+    
+    input clk; // incoming signal (current)
+    output reg out; // goes out to led - using reg (register) as a memory element -> output will stay that way until changed
 
-input clk;
-output LED;
+    initial //used for simulation only -> not synthesizable -> type of procedural block
+        out = 0; // setting the initial value of our output -> led is off
 
-reg [31:0] counter;
-reg LED_status;
-
-initial begin
-    counter <= 32'b0;
-    LED_status <= 1'b0;
-end
-
-always @ (posedge clk)
-begin
-    counter <= counter + 1'b1;
-    if (counter > 50000000)
-    begin
-        LED_status <= !LED_status;
-        counter <= 32'b0;
-    end
-
-end
-
-assign LED = LED_status;
+    always @(posedge clk) // another instantiation of a procedural process that beings at time 0, this repeats unlike "initial"
+        // the "@(posedge clk)" expression is an event control is a procedural
+        // construct that is waiting for a change in expression.
+        out <= ~out; //will toggle the value of out
 
 endmodule

@@ -1,41 +1,15 @@
-`include "led_blink.v"
-`timescale 1us/1ns
-
 module led_blink_tb;
 
-    reg r_CLOCK = 1'b0;
-    
-    wire w_LED_DRIVE;
+wire out; // wire is analogous to electricl wire
 
-    // Instantiate the Unit Under Test (UUT)
-    led_blink UUT
-        (
-            .clk(r_CLOCK)
-            .LED(w_LED_DRIVE)
-            );
+reg clk = 0; // setting value of clk to 0 in memory
+always #5 clk = ~clk; // toggling the value of clk after every 5 time units. No condition for always so it will run indefinitely
 
-    always #20 r_CLOCK <= !r_CLOCK;
+led_blink b0 (clk,out); // referencing led_blink module in other file with ports
 
-    initial begin
-        r_ENABLE <= 1'b1;
+initial begin // procedural block start -> needs begin and end due to having more than one statement
+    $monitor("LED: %d",out); // used to monitor the output -> format: $monitor ("format_string", parameter1, parameter2, ... );
+    #500 $stop; // #500 is waiting for 500 time units. $stop suspends the simulation and puts it into interactive mode 
+end
 
-        r_SWITCH_1 <= 1'b0;
-        r_SWITCH_2 <= 1'b0;
-        #200000 // 0.2 seconds
-         
-        r_SWITCH_1 <= 1'b0;
-        r_SWITCH_2 <= 1'b1;
-        #200000 // 0.2 seconds
-         
-        r_SWITCH_1 <= 1'b1;
-        r_SWITCH_2 <= 1'b0;
-        #500000 // 0.5 seconds
-
-        r_SWITCH_1 <= 1'b1;
-        r_SWITCH_2 <= 1'b1;
-        #2000000 // 2 seconds
-
-        $display("Test Complete");
-    end
-   
-endmodule 
+endmodule
