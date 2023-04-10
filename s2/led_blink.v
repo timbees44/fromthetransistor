@@ -1,7 +1,7 @@
-module led_blink (); // setting module for block of functionality -> format= module <name> ([port_list]);
+module led_blink (clk, out); // setting module for block of functionality -> format= module <name> ([port_list]);
     
     input clk; // incoming signal (current)
-    output reg out; // goes out to led - using reg (register) as a memory element -> output will stay that way until changed
+    output reg out; // goes out to led - using reg (register) as a memory element -> output will stay how it's set until changed
 
     initial //used for simulation only -> not synthesizable -> type of procedural block
         out = 0; // setting the initial value of our output -> led is off
