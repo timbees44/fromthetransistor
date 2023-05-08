@@ -24,7 +24,6 @@ wire baud_tick = (baud_counter == 0); // signals the end of each bit transmissio
 parameter BAUD_DIV = (CLOCK_FREQ / BAUD_RATE) - 1; // number of clock cycles required to tx each bit at the desired baud rate
 // Allows for flexibility in input baud rates set
 reg [15:0] baud_div_counter; // counts the number of clock cycles between each bit tx
-// incremented on every clock cycle, when it reaches value in 'BAUD_DIV', 'baud_counter is reset to 0
 
 always @(posedge clk) begin // start when clock signal has positive edge ____(|)---|____
   if (rst) begin // checking if reset signal is high
@@ -32,17 +31,17 @@ always @(posedge clk) begin // start when clock signal has positive edge ____(|)
     tx_shift_reg <= 8'b00000000; // sets the value of tx_shift_reg to 0 - reflecting 8bit value
     tx <= 1'b1; // sets tx value to 1 which is the idle state (high)
     baud_counter <= BAUD_DIV; // sets baud_counter to BAUD_DIV which kicks off counter used to generate the timing for bit tx
-    baud_div_counter <= 0; // 
-    tx_busy <= 1'b0;
+    baud_div_counter <= 0; // setting initial value of baud_div_counter to zero
+    tx_busy <= 1'b0; // sets tx_busy to 0 indicating that a new transmission can be started
   end
-  else begin
+  else begin // if reset signal is low
     // Baud rate clock generation
-    if (baud_div_counter == BAUD_DIV) begin
-      baud_div_counter <= 0;
-      baud_counter <= baud_counter - 1;
+    if (baud_div_counter == BAUD_DIV) begin // checks if baud_div_counter has reached it's max value which is set/stored by BAUD_DIV.
+      baud_div_counter <= 0; // when the above is true baud_div_counter is reset to 0
+      baud_counter <= baud_counter - 1; // decrement the value of baud_counter. Eventually this reaches zero to signify that a one bit of data has been transmitted.
     end
     else begin
-      baud_div_counter <= baud_div_counter + 1;
+      baud_div_counter <= baud_div_counter + 1; // if baud_div_counter is not == BAUD_DIV then it counts up until this is the case.
     end
     
     // State machine
