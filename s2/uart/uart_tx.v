@@ -45,13 +45,13 @@ always @(posedge clk) begin // start when clock signal has positive edge ____(|)
     end
     
     // State machine
-    case (tx_state)
+    case (tx_state) // we're still in "if (rst) begin" state so this is when tx_state = 0
       4'b0000: begin // IDLE
-        tx <= 1'b1;
-        if (tx_data != 1'b1) begin
-          tx_shift_reg <= 8'b10000000; // Start bit
-          tx_state <= 4'b0001;
-          tx_busy <= 1'b1;
+        tx <= 1'b1; // tx set to 1 to keep in IDLE
+        if (tx_data != 1'b1) begin // if tx_data not 1
+          tx_shift_reg <= 8'b10000000; // Start bit is loaded
+          tx_state <= 4'b0001; // set to transmission state
+          tx_busy <= 1'b1; // tx_busy set to 1 to indicate transmission in progress
         end
       end
       
