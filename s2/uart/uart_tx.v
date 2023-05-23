@@ -18,15 +18,18 @@ parameter CLOCK_FREQ = 50000000; // Hz (toggling between high and low - ____|---
 reg [15:0] baud_counter; // counting number of clock cycles that have elapsed since the last bit was transmitted. 
 //16 bits for flexibility. Needs to transfer both the 8bits of data plus start and stop bits and any other bits that might be present.
 wire baud_tick = (baud_counter == 0); // signals the end of each bit transmission 
-// when true or 0 the counter has reached it's maximum value and the a new bit can be transmitted.
+// when true or 1 the counter has reached it's maximum value and the a new bit can be transmitted.
 
 // Clock divider for generating baud rate clock
 parameter BAUD_DIV = (CLOCK_FREQ / BAUD_RATE) - 1; // number of clock cycles required to tx each bit at the desired baud rate
 // Allows for flexibility in input baud rates set
-reg [15:0] baud_div_counter; // counts the number of clock cycles between each bit tx
+reg [15:0] baud_div_counter; //  responsible for dividing the clock frequency down to the desired baud rate. It counts the number of clock cycles between each bit transmission
+
+// baud_div_counter vs baud_counter:
+// The baud_div_counter controls the frequency of bit transmission, while the baud_counter controls the duration of each bit.
 
 always @(posedge clk) begin // start when clock signal has positive edge ____(|)---|____
-  if (rst) begin // checking if reset signal is high
+  if (rst) begin // checking if reset signal dis high
     tx_state <= 4'b0000; // sets tx_state to 0 - notation is reflecting 4bit value
     tx_shift_reg <= 8'b00000000; // sets the value of tx_shift_reg to 0 - reflecting 8bit value
     tx <= 1'b1; // sets tx value to 1 which is the idle state (high)
@@ -60,15 +63,15 @@ always @(posedge clk) begin // start when clock signal has positive edge ____(|)
         if (baud_tick) begin
           tx_shift_reg <= {tx_shift_reg[6:0], 1'b0}; // Shift in next bit
           if (tx_shift_reg == 8'b00000001) begin // Check if last bit was sent
-            tx_state <= 4'b0010;
+            tx_state <= 4'b0010; // if last bit has been sent then this sets the STOP state
           end
         end
       end
       
       4'b0010: begin // STOP
-        tx <= 1'b1;
-        tx_busy <= 1'b0;
-        tx_state <= 4'b0000;
+        tx <= 1'b1; // send stop bit
+        tx_busy <= 1'b0; // transmission no longer in progress. ready for next transmission. 
+        tx_state <= 4'b0000; // state is 0, this represents idle state.
       end
     endcase
   end
