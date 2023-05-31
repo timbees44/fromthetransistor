@@ -39,12 +39,12 @@ always @(posedge clk) begin // start when clock signal has positive edge ____(|)
   end
   else begin
     // Baud rate clock generation
-    if (baud_div_counter == BAUD_DIV) begin
-      baud_div_counter <= 0;
-      baud_counter <= baud_counter - 1;
+    if (baud_div_counter == BAUD_DIV) begin  //checking if at baud_div rate
+      baud_div_counter <= 0; // resets counter for next lot of rx
+      baud_counter <= baud_counter - 1; // sets baud_counter so it can count up
     end
     else begin
-      baud_div_counter <= baud_div_counter + 1;
+      baud_div_counter <= baud_div_counter + 1; // counts number of clock cycles since the last bit transmission. So if it's not == BAUD_DIV we count up until it is and then we know that we have finished receiving
     end
     
     // State machine
@@ -52,18 +52,18 @@ always @(posedge clk) begin // start when clock signal has positive edge ____(|)
       3'b000: begin // IDLE
         rx_done <= 1'b0; // indicate no byte has been received yet
         if (rx == 1'b0) begin // Check for start bit
-          rx_busy <= 1'b1;
-          rx_shift_reg <= 8'b00000000;
-          rx_state <= 3'b001;
+          rx_busy <= 1'b1; // setting to 1 to indicate receiving
+          rx_shift_reg <= 8'b00000000; //resetting shift reg to 0 to allow for new receiving data
+          rx_state <= 3'b001; // state set to 1 to indicate DATA state
         end
       end
       
       3'b001: begin // DATA
-        if (baud_tick) begin
-          rx_shift_reg <= {rx
-      8'b00000001: begin // Check if last bit was received
-        rx_state <= START_BIT;
-        rx_data <= rx_shift_reg[6:0];
+        if (baud_tick) begin // if baud_tick == 1 start
+          rx_shift_reg <= {rx_shift_reg[6:0], rx}; // received bit (rx) is shift to least sigificant bit
+            8'b00000001: begin // checks if the received byte is the last bit fo the frame (bit 0 is set to 1)   
+        rx_state <= START_BIT; // transistion to start bit state. Indicating that entire byte has been received. 
+        rx_data <= rx_shift_reg[6:0]; // data bits (6 to 0) are assigned to rx_date register for further processing.
       end
     endcase
   end
